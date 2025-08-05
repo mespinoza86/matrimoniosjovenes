@@ -1,0 +1,138 @@
+body {
+  font-family: sans-serif;
+  margin: 2rem;
+}
+
+input, textarea, button {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.4rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#tabs button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+button#deleteBtn {
+  background-color: red;
+}
+
+button#deleteBtn:hover {
+  background-color: darkred;
+}
+
+.attendance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.attendance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 500px;
+}
+
+.tabs-container {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 1rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+}
+
+.tabs button {
+  border: 1px solid #ccc;
+  color: black;
+  border-bottom: none;
+  background-color: #f1f1f1;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  font-weight: bold;
+}
+
+.tabs button.active {
+  background-color: white;
+  border-bottom: 1px solid white;
+}
+
+.tab-content {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 0 0 6px 6px;
+  background-color: white;
+}
+
+#fileDeleteForm ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#fileDeleteForm li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+#fileDeleteForm li input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+#fileDeleteForm li a {
+  text-decoration: none;
+  color: #007bff;
+  word-break: break-all;
+}
+
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.file-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  padding-left: 0;
+  justify-content: flex-start;
+}
+
+.file-list li input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+
+.file-list li a {
+  text-decoration: none;
+  color: #007bff;
+  word-break: break-word;
+}
+
