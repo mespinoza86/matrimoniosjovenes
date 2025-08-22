@@ -144,6 +144,10 @@ function renderClassTab(index) {
       `).join('')}
       <button type="submit">Guardar Asistencia</button>
     </form>
+
+    
+  <!-- Botón PDF -->
+  <button id="downloadPdfBtn">Descargar como PDF</button>
   `;
 
   // SUBIR ARCHIVOS
@@ -193,15 +197,27 @@ function renderClassTab(index) {
     alert('Archivos eliminados');
     await loadCourse();
   });
+
+  // DESCARGAR PDF
+  document.getElementById('downloadPdfBtn').onclick = () => {
+    window.open(`/api/course/${year}/class/${index}/pdf`, '_blank');
+  };
+
+
 }
 
 
 async function saveClass(index) {
+  const cleanText = (text) => text
+    .replace(/\r\n/g, '\n')       // normaliza saltos de línea Windows
+    .replace(/\r/g, '\n')         // normaliza saltos de línea Mac
+    .replace(/[^\x20-\x7E\n\u00C0-\u017F]/g, '') // elimina caracteres raros
+
   const body = {
-    title: document.getElementById('title').value,
-    activities: document.getElementById('activities').value,
-    notes: document.getElementById('notes').value,
-    agenda: document.getElementById('agenda').value,
+    title: cleanText(document.getElementById('title').value),
+    activities: cleanText(document.getElementById('activities').value),
+    notes: cleanText(document.getElementById('notes').value),
+    agenda: cleanText(document.getElementById('agenda').value),
   };
 
   await fetch(`/api/course/${year}/class/${index}`, {
@@ -211,6 +227,6 @@ async function saveClass(index) {
   });
 
   await loadCourse();
-
   alert('Datos guardados');
 }
+

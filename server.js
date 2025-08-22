@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const app = express();
+const PDFDocument = require('pdfkit');
 
 app.use(cors());
 app.use(express.json());
@@ -161,6 +162,71 @@ app.post('/api/course/:year/class/:index', async (req, res) => {
 
   await course.save();
   res.sendStatus(200);
+});
+
+// Generar PDF de una clase
+app.get('/api/course/:year/class/:index/pdf', async (req, res) => {
+  try {
+    const { year, index } = req.params;
+    const course = await Course.findOne({ year });
+    if (!course) return res.status(404).send('Curso no encontrado');
+    const c = course.classes[index];
+    if (!c) return res.status(404).send('Clase no encontrada');
+
+    const doc = new PDFDocument();
+    const filename = `clase_${parseInt(index) + 1}.pdf`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    doc.pipe(res);
+
+    // Contenido del PDF
+    doc.fontSize(20).text(`Clase ${parseInt(index) + 1}`, { align: 'center' });
+    doc.moveDown();
+
+    doc.fontSize(16).text('Título:', { underline: true });
+    doc.fontSize(12).text(c.title || '---');
+    doc.moveDown();
+
+    doc.fontSize(16).text('Agenda:', { underline: true });
+     if (c.agenda) {
+      c.agenda.split('\n').forEach(line => {
+      if (line.trim()) doc.fontSize(12).text(`• ${line}`);
+      });
+    } else {
+      doc.fontSize(12).text('---');
+    }
+
+    doc.moveDown();
+
+    doc.fontSize(16).text('Actividades:', { underline: true });
+    if (c.activities) {
+      c.activities.split('\n').forEach(line => {
+      if (line.trim()) doc.fontSize(12).text(`• ${line}`);
+      });
+    } else {
+      doc.fontSize(12).text('---');
+    }
+    doc.moveDown();
+
+
+    doc.fontSize(16).text('Notas:', { underline: true });
+    doc.fontSize(12).text(c.notes || '---');
+    doc.moveDown();
+
+    doc.fontSize(16).text('Asistencia:', { underline: true });
+    if (c.attendance?.length) {
+      c.attendance.forEach(name => doc.fontSize(12).text(`• ${name}`));
+    } else {
+      doc.fontSize(12).text('---');
+    }
+
+    doc.end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error generando el PDF');
+  }
 });
 
 // Resetear la base de datos (borrar todos los cursos)
