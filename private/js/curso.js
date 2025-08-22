@@ -24,7 +24,7 @@ function renderTabs() {
 
   let firstTab;
 
-  for (let i = 0; i < 9; i++) {
+  currentData.classes.forEach((cls, i) => {
     const tab = document.createElement('button');
     tab.innerText = `Clase ${i + 1}`;
     tab.onclick = () => {
@@ -32,13 +32,34 @@ function renderTabs() {
       renderClassTab(i);
     };
     tabs.appendChild(tab);
-    if (i === 0) firstTab = tab;
-  }
+  });
 
-  // Activar Clase 1 al cargar
-  setActiveTab(firstTab);
-  renderClassTab(0);
-}
+  // Botón para agregar clase
+  const addClassTab = document.createElement('button');
+  addClassTab.innerText = '+ Agregar clase';
+  addClassTab.onclick = async () => {
+  const nextClassNumber = currentData.classes.length + 1;
+  const confirmed = confirm(`¿Quieres crear la Clase ${nextClassNumber}?`);
+  if (!confirmed) return;
+
+    await fetch(`/api/course/${year}/class/add`, { method: 'POST' });
+    await loadCourse();
+  };
+  tabs.appendChild(addClassTab);
+
+  // Activar primera clase si existe
+  if (currentData.classes.length > 0) {
+    const firstTab = tabs.querySelectorAll('button')[1]; // el primero es "Parejas"
+    if (firstTab) {
+      setActiveTab(firstTab);
+      renderClassTab(0);
+    }
+  } else {
+    // Si no hay clases, mostrar solo las parejas
+    setActiveTab(peopleTab);
+    renderPeopleTab();
+  }
+} 
 
 
 // Marca la pestaña activa visualmente

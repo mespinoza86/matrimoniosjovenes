@@ -63,14 +63,7 @@ app.post('/api/create-course', async (req, res) => {
   const newCourse = new Course({
     year,
     couples: [],
-    classes: Array(9).fill(null).map(() => ({
-      title: '',
-      attendance: [],
-      activities: '',
-      notes: '',
-      agenda: '',
-      files: [],
-    })),
+    clases: [],
   });
 
   await newCourse.save();
@@ -85,6 +78,20 @@ app.get('/api/courses', async (req, res) => {
 app.get('/api/course/:year', async (req, res) => {
   const course = await Course.findOne({ year: req.params.year });
   res.json(course);
+});
+
+app.post('/api/course/:year/class/add', async (req, res) => {
+  const course = await Course.findOne({ year: req.params.year });
+  course.classes.push({
+    title: '',
+    attendance: [],
+    activities: '',
+    notes: '',
+    agenda: '',
+    files: [],
+  });
+  await course.save();
+  res.sendStatus(200);
 });
 
 app.post('/api/course/:year/couple', async (req, res) => {
@@ -134,26 +141,50 @@ app.post('/api/course/:year/class/:index', async (req, res) => {
   const { title, activities, notes, agenda } = req.body;
   const course = await Course.findOne({ year: req.params.year });
   const index = req.params.index;
-  const existing = course.classes[index] || {
-    title: '',
-    attendance: [],
-    activities: '',
-    notes: '',
-    agenda: '',
-    files: [],
-  };
 
-  course.classes[index] = {
-    ...existing,
-    title,
-    activities,
-    notes,
-    agenda,
-  };
+  if (!course.classes[index]) {
+    course.classes[index] = {
+      title: '',
+      attendance: [],
+      activities: '',
+      notes: '',
+      agenda: '',
+      files: [],
+    };
+  }
+
+  // Solo actualizar los campos, sin borrar archivos ni asistencia
+  course.classes[index].title = title;
+  course.classes[index].activities = activities;
+  course.classes[index].notes = notes;
+  course.classes[index].agenda = agenda;
 
   await course.save();
   res.sendStatus(200);
 });
+
+// Resetear la base de datos (borrar todos los cursos)
+/*
+app.post('/api/reset-db', async (req, res) => {
+  try {
+    await Course.deleteMany({});
+    res.send('Base de datos reiniciada');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error al reiniciar la base de datos');
+  }
+});
+
+app.get('/api/reset-db', async (req, res) => {
+  try {
+    await Course.deleteMany({});
+    res.send('Base de datos reiniciada (GET)');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error al reiniciar la base de datos');
+  }
+});
+*/
 
 app.post('/api/course/:year/class/:index/attendance', async (req, res) => {
   const { attendance } = req.body;
