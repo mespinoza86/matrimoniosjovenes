@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Curso</title>
-  <link rel="stylesheet" href="../private/css/style.css">
+<meta charset="UTF-8">
+<title>Curso</title>
+<link rel="stylesheet" href="../private/css/style.css">
 </head>
 <body>
-  <h1 id="cursoTitle">Curso</h1>
-  <section>
-    <h2></h2>    
-  </section>  
-  <div class="tabs-container">
-  <div class="tabs" id="tabs">
-    <!-- Las pestañas se crean por JS -->
-  </div>
-</div>
-<div id="classContent" class="tab-content"></div>
-  <div id="classContent"></div>
+<h1 id="cursoTitle">Curso</h1>
+<section><h2></h2></section>
 
-  <script src="../private/js/curso.js"></script>
+<div class="tabs-container">
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<div id="classContent" class="tab-content"></div>
+
+<!-- Login para modificar -->
+<div id="editLogin" style="display:none; margin-top:20px;">
+  <h3>Inicia sesión para modificar</h3>
+  <label>Usuario: <input type="text" id="editUser"></label>
+  <label>Contraseña: <input type="password" id="editPass"></label>
+  <button id="loginBtn">Iniciar sesión</button>
+</div>
+
+<!-- Volver al index -->
+<button onclick="location.href='index.html'">Volver</button>
+
+<script src="../private/js/curso.js"></script>
 </body>
 </html>

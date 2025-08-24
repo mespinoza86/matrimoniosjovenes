@@ -7,14 +7,25 @@
 </head>
 <body>
   <h1>Gestor de Cursos</h1>
+
+  <!-- 🔑 Zona de login/perfil -->
+  <div id="authSection">
+    <button id="loginBtn" onclick="window.location.href='login.html'">Login</button>
+    <button id="profileBtn" style="display:none;" onclick="window.location.href='profile.html'">Mi Perfil</button>
+    <button id="logoutBtn" style="display:none;" onclick="logout()">Cerrar sesión</button>
+  </div>
+
   <form id="newCourseForm">
     <input type="number" name="year" placeholder="Año del curso" required />
     <button type="submit">Crear Curso</button>
   </form>
-
+  
   <h2>Cursos Existentes</h2>
   <ul id="courseList"></ul>
+  <h2>Usuarios</h2>
+  <button onclick="window.location.href='register.html'">Crear Usuario</button>
 
   <script src="../private/js/index.js"></script>
 </body>
+
 </html>

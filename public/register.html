@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Usuario</title>
+  <link rel="stylesheet" href="../private/css/style.css">
+</head>
+<body>
+  <h1>Registro de Usuario</h1>
+  <form id="registerForm">
+    <input type="text" name="firstName" placeholder="Nombre" required /><br>
+    <input type="text" name="lastName" placeholder="Apellido" required /><br>
+    <input type="text" name="username" placeholder="Usuario" required /><br>
+    <input type="email" name="email" placeholder="Correo electrónico" required /><br>
+    <input type="password" name="password" placeholder="Contraseña" required /><br>
+    <input type="password" name="confirmPassword" placeholder="Confirmar Contraseña" required /><br>
+    <button type="submit">Crear Usuario</button>
+  </form>
+  <br>
+  <button onclick="window.location.href='index.html'">Volver</button>
+  <script src="../private/js/register.js"></script>
+</body>
+</html>

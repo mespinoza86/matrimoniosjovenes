@@ -13,6 +13,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const session = require('express-session');
+app.use(session({
+  secret: 'supersecretkey', // ⚠️ cambia esto en producción
+  resave: false,
+  saveUninitialized: false
+}));
+
 // Servir archivos estáticos
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -56,6 +63,31 @@ const Course = mongoose.model('Course', courseSchema);
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+const jwt = require('jsonwebtoken');
+const SECRET = process.env.JWT_SECRET || 'secreto123';
+
+// Middleware para validar token
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) return res.status(401).json({ error: 'No autorizado' });
+
+  const token = authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Token no encontrado' });
+
+  jwt.verify(token, SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Token inválido' });
+    req.user = user;
+    next();
+  });
+}
+
+// Endpoint para obtener perfil
+app.get('/api/users/me', authMiddleware, async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  res.json(user);
+});
+
+
 app.post('/api/create-course', async (req, res) => {
   const { year } = req.body;
   const existing = await Course.findOne({ year });
@@ -80,6 +112,86 @@ app.get('/api/course/:year', async (req, res) => {
   const course = await Course.findOne({ year: req.params.year });
   res.json(course);
 });
+
+const User = require('./models/User'); // 👈 importar el modelo User
+
+// Registrar usuario
+app.post('/api/users/register', async (req, res) => {
+  try {
+    const { firstName, lastName, username, email, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: 'Las contraseñas no coinciden' });
+    }
+
+    const existing = await User.findOne({ $or: [{ username }, { email }] });
+    if (existing) {
+      return res.status(400).json({ error: 'El usuario o correo ya existen' });
+    }
+
+    const newUser = new User({ firstName, lastName, username, email, password });
+    await newUser.save();
+
+    res.json({ message: 'Usuario creado con éxito' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error creando usuario' });
+  }
+});
+
+// Login
+app.post('/api/users/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const user = await User.findOne({ username });
+    if (!user) return res.status(400).json({ error: 'Usuario no encontrado' });
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
+
+    // Guardamos la sesión
+    req.session.userId = user._id;
+    res.json({ message: 'Login exitoso' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en login' });
+  }
+});
+
+// Logout
+app.post('/api/users/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.json({ message: 'Sesión cerrada' });
+  });
+});
+
+// Perfil
+app.get('/api/users/profile', async (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'No autenticado' });
+  const user = await User.findById(req.session.userId).select('-password');
+  res.json(user);
+});
+
+// Cambiar contraseña
+app.post('/api/users/change-password', async (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'No autenticado' });
+
+  const { oldPassword, newPassword } = req.body;
+  try {
+    const user = await User.findById(req.session.userId);
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) return res.status(400).json({ error: 'Contraseña actual incorrecta' });
+
+    user.password = newPassword; // bcrypt lo encripta en pre-save
+    await user.save();
+
+    res.json({ message: 'Contraseña actualizada' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error cambiando contraseña' });
+  }
+});
+
 
 app.post('/api/course/:year/class/add', async (req, res) => {
   const course = await Course.findOne({ year: req.params.year });
